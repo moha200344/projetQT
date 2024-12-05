@@ -6,6 +6,8 @@
 #include <QtGui>
 #include <QtCharts>
 #include <QPieSeries>
+#include <QSerialPort>
+#include <QSerialPortInfo>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class employe; }
@@ -19,6 +21,7 @@ public:
     employe(QWidget *parent = nullptr);
     ~employe();
     void exportToPdf();
+    void readKeypadInput();
 
 
 private slots:
@@ -60,6 +63,10 @@ private:
     Ui::employe *ui;
     employec Ptmp;
     employec e;
+    QSerialPort *arduino;
+    QString arduinoportname;
+    bool arduinoIsAvailable;
+
 
 };
 #endif // EMPLOYE_H

@@ -1,5 +1,5 @@
 QT += core gui serialport
-QT += core gui sql pdf
+QT += core gui sql
 QT += core gui quick
 QT += quickwidgets
 QT += core gui charts

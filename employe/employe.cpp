@@ -42,11 +42,64 @@ employe::employe(QWidget *parent)
     , ui(new Ui::employe)
 {
     ui->setupUi(this);
+    arduino = new QSerialPort();
+    arduinoIsAvailable = false;
+    arduinoportname = "";
+    qDebug() << "Number of ports: " << QSerialPortInfo::availablePorts().length();
+    foreach (const QSerialPortInfo &serialPortInfo, QSerialPortInfo::availablePorts())
+    {
+        if(serialPortInfo.hasVendorIdentifier()&&serialPortInfo.hasProductIdentifier())
+        {
+            qDebug()<<"é"<<serialPortInfo.hasVendorIdentifier();
+            qDebug()<<"aa"<<serialPortInfo.hasProductIdentifier();
+            arduinoportname = serialPortInfo.portName(); // Store the port name
+
+                      arduinoIsAvailable = true;
+                      break;
+
+        }
+    }
+
+    if (arduinoIsAvailable) {
+        qDebug() << "Port à ouvrir : " << arduinoportname;
+
+        arduino->setPortName(arduinoportname);
+        arduino->setBaudRate(QSerialPort::Baud9600);
+        arduino->setDataBits(QSerialPort::Data8);
+        arduino->setParity(QSerialPort::NoParity);
+        arduino->setStopBits(QSerialPort::OneStop);
+        arduino->setFlowControl(QSerialPort::NoFlowControl);
+
+        if (arduino->open(QIODevice::ReadWrite)) {
+            qDebug() << "Connected to: " << arduinoportname;
+            connect(arduino, &QSerialPort::readyRead, this, &employe::readKeypadInput);  // Connect readyRead signal to readKeypadInput slot
+        } else {
+            QMessageBox::critical(this, "Error", "Failed to open the serial port.");
+        }
+    } else {
+        QMessageBox::critical(this, "Error", "No Arduino device found.");
+    }
+
+
 }
 
 employe::~employe()
 {
-    delete ui;
+    if (arduino->isOpen()) {
+         arduino->close();  // Close the serial port
+     }
+     delete ui;
+}
+void employe::readKeypadInput()
+{
+    QByteArray data = arduino->readAll();  // Read all available data
+    QString keypadInput = QString(data);  // Convert to string
+
+    qDebug() << "Received from keypad: " << keypadInput;
+
+    // Assuming keypad sends a single key or a sequence of keys (e.g., "A", "B", "1", "2", etc.)
+    // Process the input accordingly. For example, append the input to a text field:
+    ui->prixc->setText(keypadInput);  // Assuming you're displaying the keypad input in prixc line edit.
 }
 
 void employe::on_ajout_clicked()
