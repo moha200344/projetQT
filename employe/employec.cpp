@@ -34,10 +34,11 @@ employec::employec()
     QString DIP = "";
     QString PT = "";
     QString NBC = "";
+    int CODE = 0;
 }
 
 // Parameterized constructor
-employec::employec(QString ID, QString NP, QString STAT, QString SAL, QString POST, QString DIP, QString PT, QString NBC)
+employec::employec(QString ID, QString NP, QString STAT, QString SAL, QString POST, QString DIP, QString PT, QString NBC,int CODE)
 {
     this->ID = ID;
     this->NP = NP;
@@ -47,6 +48,7 @@ employec::employec(QString ID, QString NP, QString STAT, QString SAL, QString PO
     this->DIP = DIP;
     this->PT = PT;
     this->NBC = NBC;
+    this->CODE = CODE;
 }
 bool employec::ajouter_employe()
 {
@@ -74,8 +76,8 @@ bool employec::ajouter_employe()
 
     // Insert the new employee record into the database
     QSqlQuery query;
-    query.prepare("INSERT INTO EMPLOYEEC(ID, NP, STAT, SAL, POST, DIP, PT, NBC) "
-                  "VALUES(:ID, :NP, :STAT, :SAL, :POST, :DIP, :PT, :NBC)");
+    query.prepare("INSERT INTO EMPLOYEEC(ID, NP, STAT, SAL, POST, DIP, PT, NBC,CODE) "
+                  "VALUES(:ID, :NP, :STAT, :SAL, :POST, :DIP, :PT, :NBC,:CODE)");
     query.bindValue(":ID", ID);
     query.bindValue(":NP", NP);
     query.bindValue(":STAT", STAT);
@@ -84,6 +86,8 @@ bool employec::ajouter_employe()
     query.bindValue(":DIP", DIP);
     query.bindValue(":PT", PT);
     query.bindValue(":NBC", NBC);
+    query.bindValue(":CODE", CODE);
+
 
     if (query.exec()) {
         return true;
@@ -98,7 +102,7 @@ QSqlQueryModel* employec::afficher()
     QSqlQueryModel *model = new QSqlQueryModel();
 
     // Execute the query to retrieve data
-    model->setQuery("SELECT ID, NP, STAT, SAL, POST, DIP, PT, NBC FROM EMPLOYEEC");
+    model->setQuery("SELECT ID, NP, STAT, SAL, POST, DIP, PT, NBC,CODE FROM EMPLOYEEC");
 
     // Check if the query failed
     if (model->lastError().isValid()) {
@@ -115,6 +119,9 @@ QSqlQueryModel* employec::afficher()
     model->setHeaderData(5, Qt::Horizontal, QObject::tr("Diplôme"));
     model->setHeaderData(6, Qt::Horizontal, QObject::tr("Points"));
     model->setHeaderData(7, Qt::Horizontal, QObject::tr("Nombre de Contrats"));
+    model->setHeaderData(7, Qt::Horizontal, QObject::tr("Code"));
+
+
 
     return model;
 }
@@ -141,7 +148,7 @@ bool employec::modifier_employe()
     // Sinon, procéder à la mise à jour des données de l'employé
     QSqlQuery query;
     query.prepare("UPDATE EMPLOYEEC "
-                  "SET NP = :NP, STAT = :STAT, SAL = :SAL, POST = :POST, DIP = :DIP, PT = :PT, NBC = :NBC "
+                  "SET NP = :NP, STAT = :STAT, SAL = :SAL, POST = :POST, DIP = :DIP, PT = :PT, NBC = :NBC, CODE = :CODE  "
                   "WHERE ID = :ID");
 
     // Lier les valeurs
@@ -153,6 +160,9 @@ bool employec::modifier_employe()
     query.bindValue(":DIP", DIP);
     query.bindValue(":PT", PT);
     query.bindValue(":NBC", NBC);
+    query.bindValue(":CODE", CODE);
+
+
 
     // Exécuter la requête
     if (!query.exec()) {

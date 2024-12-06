@@ -657,8 +657,8 @@ QPushButton:pressed {
        <widget class="QPushButton" name="ajout">
         <property name="geometry">
          <rect>
-          <x>130</x>
-          <y>380</y>
+          <x>150</x>
+          <y>420</y>
           <width>171</width>
           <height>41</height>
          </rect>
@@ -975,8 +975,8 @@ QPushButton:pressed {
        <widget class="QPushButton" name="modif">
         <property name="geometry">
          <rect>
-          <x>310</x>
-          <y>380</y>
+          <x>340</x>
+          <y>420</y>
           <width>191</width>
           <height>41</height>
          </rect>
@@ -1399,6 +1399,37 @@ QPushButton:pressed {
          <string>Nombre de congés</string>
         </property>
        </widget>
+       <widget class="QLineEdit" name="prixl_7">
+        <property name="geometry">
+         <rect>
+          <x>210</x>
+          <y>350</y>
+          <width>241</width>
+          <height>41</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">#prixl_7
+{
+
+    background-color: #819fb4;
+    border: none;
+    border-bottom: 2px solid #819fb4;
+    padding-bottom: 7px;
+    selection-background-color: #1a3137;
+    border-radius: 10px;
+}</string>
+        </property>
+        <property name="text">
+         <string>Code</string>
+        </property>
+        <property name="maxLength">
+         <number>8</number>
+        </property>
+        <property name="placeholderText">
+         <string>Nombre de congés</string>
+        </property>
+       </widget>
        <zorder>icones_8</zorder>
        <zorder>ajout</zorder>
        <zorder>id</zorder>
@@ -1410,6 +1441,7 @@ QPushButton:pressed {
        <zorder>prixl_3</zorder>
        <zorder>prixl_5</zorder>
        <zorder>prixl_6</zorder>
+       <zorder>prixl_7</zorder>
       </widget>
       <widget class="QPushButton" name="supprimer">
        <property name="geometry">

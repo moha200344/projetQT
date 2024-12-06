@@ -82,6 +82,58 @@ employe::employe(QWidget *parent)
 
 
 }
+QString currentCode;  // Variable pour accumuler les touches
+
+void employe::readKeypadInput() {
+    if (!arduino->canReadLine()) return;
+
+    QByteArray data = arduino->readLine().trimmed(); // Lire la ligne complète
+    QString input(data); // Convertir en QString
+
+    qDebug() << "Données reçues du keypad : " << input;
+
+    // Vérifier si le dernier caractère est '#'
+    if (input.endsWith('#')) {
+        // Supprimer le caractère '#' et accumuler les chiffres
+        currentCode += input.left(input.length() - 1);
+
+        // Convertir le code accumulé en entier
+        bool ok;
+        int code = currentCode.toInt(&ok);
+
+        if (ok) {
+            qDebug() << "Code à vérifier : " << code;
+
+            // Vérifier l'existence du code
+            QString np = isCodeExists(code);  // Appeler la méthode qui retourne NP
+            qDebug() << "NP retourné par isCodeExists : " << np;  // Afficher NP retourné
+
+            // Afficher un message en fonction de la présence du code
+            if (np.length()>2) {
+                // Afficher un message d'information avec NP
+                QMessageBox::information(this, "Succès", "Bonjour et bienvenue : " + np);
+                qDebug() << "Le code existe dans la table employeec, NP : " << np;
+            } else {
+                // Afficher un message d'erreur si le code n'est pas trouvé
+                QMessageBox::warning(this, "Erreur", "Le code n'existe pas dans la base de données.");
+                qDebug() << "Le code n'existe pas dans la table employeec.";
+            }
+        } else {
+            // Afficher un message d'erreur si le code est invalide
+            QMessageBox::warning(this, "Erreur", "Le code n'est pas valide.");
+            qDebug() << "Le code est invalide.";
+        }
+
+        // Réinitialiser currentCode pour la prochaine saisie
+        currentCode.clear();
+    } else {
+        // Accumuler les touches
+        currentCode += input;
+        qDebug() << "Code en cours : " << currentCode;
+    }
+}
+
+
 
 employe::~employe()
 {
@@ -90,17 +142,27 @@ employe::~employe()
      }
      delete ui;
 }
-void employe::readKeypadInput()
-{
-    QByteArray data = arduino->readAll();  // Read all available data
-    QString keypadInput = QString(data);  // Convert to string
+QString employe::isCodeExists(const int code) {
+    QSqlQuery query;
 
-    qDebug() << "Received from keypad: " << keypadInput;
+    // Préparer la requête pour récupérer la valeur de NP
+    query.prepare("SELECT NP FROM employeec WHERE CODE = :code");
+    query.bindValue(":code", code);
 
-    // Assuming keypad sends a single key or a sequence of keys (e.g., "A", "B", "1", "2", etc.)
-    // Process the input accordingly. For example, append the input to a text field:
-    ui->prixc->setText(keypadInput);  // Assuming you're displaying the keypad input in prixc line edit.
+    // Exécuter la requête SQL
+    if (!query.exec()) {
+        qDebug() << "Erreur lors de l'exécution de la requête : " << query.lastError().text();
+        return "";  // Retourner une chaîne vide en cas d'erreur
+    }
+
+    if (query.next()) {
+        QString np = query.value(0).toString();
+        return np;
+    }
+    return "";
 }
+
+
 
 void employe::on_ajout_clicked()
 {
@@ -112,9 +174,12 @@ void employe::on_ajout_clicked()
     QString DIP = ui->prixl_2->text();
     QString PT = ui->prixl_5->text();
     QString NBC = ui->prixl_6->text();
+    int CODE = ui->prixl_7->text().toInt();
+
+
 
     // Create an employec object with the data from the UI
-    employec e(ID, NP, STAT, SAL, POST, DIP, PT, NBC);
+    employec e(ID, NP, STAT, SAL, POST, DIP, PT, NBC,CODE);
 
     // Call the ajouter_employe method and check if it was successful
     bool test = e.ajouter_employe();
@@ -160,6 +225,8 @@ void employe::on_modif_clicked()
     QString DIP = ui->prixl_2->text();
     QString PT = ui->prixl_5->text();
     QString NBC = ui->prixl_6->text();
+    int CODE = ui->prixl_7->text().toInt();
+
 
     // Vérifier si l'ID existe dans la base de données
     QSqlQuery checkQuery;
@@ -179,7 +246,7 @@ void employe::on_modif_clicked()
     }
 
     // Si l'ID existe, procéder à la modification
-    employec e(ID, NP, STAT, SAL, POST, DIP, PT, NBC);
+    employec e(ID, NP, STAT, SAL, POST, DIP, PT, NBC,CODE);
 
     // Appeler la fonction modifier
     bool test = e.modifier_employe();
@@ -255,7 +322,6 @@ void employe::on_rech_clicked()
     int count = checkQuery.value(0).toInt();
 
     if (count == 0) {
-        // Si l'ID n'existe pas dans la base de données
         QMessageBox::warning(this, "ID non trouvé", "L'ID spécifié n'existe pas dans la base de données.");
         return;
     }

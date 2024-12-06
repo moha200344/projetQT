@@ -32,6 +32,7 @@ private slots:
     void on_afficher_clicked();
 
     void on_modif_clicked();
+    QString isCodeExists(const int code);
 
     void on_supprimer_clicked();
 
